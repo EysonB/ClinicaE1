@@ -1,0 +1,9 @@
+<h1>Lista de Citas</h1>
+<a href="{% url 'citas:cita_create' %}">Nueva Cita</a>
+<ul>
+  {% for cita in citas %}
+    <li>{{ cita.paciente }} con {{ cita.medico }} - {{ cita.fecha }} {{ cita.hora }} ({{ cita.estado }})</li>
+  {% empty %}
+    <li>No hay citas registradas.</li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Listado de Médicos</title>
+</head>
+<body>
+    <h1>Lista de Médicos</h1>
+    <a href="{% url 'medicos:medico_create' %}">Registrar Médico</a>
+    <ul>
+        {% for medico in medicos %}
+            <li>{{ medico.nombre }} {{ medico.apellido }} - {{ medico.especialidad }}</li>
+        {% empty %}
+            <li>No hay médicos registrados.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+
+
