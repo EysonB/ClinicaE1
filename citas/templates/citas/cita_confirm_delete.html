@@ -1,0 +1,8 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Confirmar borrar</title></head><body>
+<h1>Eliminar cita {{ cita.id }}</h1>
+<form method="post">{% csrf_token %}
+  <p>¿Seguro que quieres eliminar esta cita?</p>
+  <button type="submit">Sí, eliminar</button>
+  <a href="{% url 'citas:cita_list' %}">Cancelar</a>
+</form>
+</body></html>

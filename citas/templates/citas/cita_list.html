@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Citas</title></head><body>
+<h1>Lista de citas</h1>
+<a href="{% url 'citas:cita_create' %}">Nueva cita</a>
+<table>
+  <thead><tr><th>ID</th><th>Paciente</th><th>Médico</th><th>Fecha</th><th>Hora</th><th>Estado</th><th>Acciones</th></tr></thead>
+  <tbody>
+  {% for cita in citas %}
+    <tr>
+      <td>{{ cita.id }}</td>
+      <td>{{ cita.paciente }}</td>
+      <td>{{ cita.medico }}</td>
+      <td>{{ cita.fecha }}</td>
+      <td>{{ cita.hora }}</td>
+      <td>{{ cita.get_estado_display }}</td>
+      <td>
+        <a href="{% url 'citas:cita_edit' cita.id %}">Editar</a> |
+        <a href="{% url 'citas:cita_delete' cita.id %}">Eliminar</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7">No hay citas.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</body></html>
