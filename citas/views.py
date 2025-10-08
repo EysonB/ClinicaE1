@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Cita
 from .forms import CitaForm
 
@@ -15,3 +15,21 @@ def cita_create(request):
     else:
         form = CitaForm()
     return render(request, 'citas/cita_form.html', {'form': form})
+
+def cita_edit(request, pk):
+    cita = get_object_or_404(Cita, pk=pk)
+    if request.method == 'POST':
+        form = CitaForm(request.POST, instance=cita)
+        if form.is_valid():
+            form.save()
+            return redirect('citas:cita_list')
+    else:
+        form = CitaForm(instance=cita)
+    return render(request, 'citas/cita_form.html', {'form': form})
+
+def cita_delete(request, pk):
+    cita = get_object_or_404(Cita, pk=pk)
+    if request.method == 'POST':
+        cita.delete()
+        return redirect('citas:cita_list')
+    return render(request, 'citas/cita_confirm_delete.html', {'cita': cita})

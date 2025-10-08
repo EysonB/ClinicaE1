@@ -3,18 +3,17 @@ from pacientes.models import Paciente
 from medicos.models import Medico
 
 class Cita(models.Model):
-    ESTADOS = [
-        ('pendiente', 'Pendiente'),
-        ('completada', 'Completada'),
-        ('cancelada', 'Cancelada'),
-    ]
-
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     medico = models.ForeignKey(Medico, on_delete=models.CASCADE)
     fecha = models.DateField()
     hora = models.TimeField()
     motivo = models.TextField()
-    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente'),
+        ('completada', 'Completada'),
+        ('cancelada', 'Cancelada'),
+    ]
+    estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='pendiente')
 
     def __str__(self):
-        return f"Cita de {self.paciente} con {self.medico} el {self.fecha} a las {self.hora}"
+        return f"Cita {self.paciente.nombre} con {self.medico.nombre} el {self.fecha}"
