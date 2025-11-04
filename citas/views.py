@@ -33,3 +33,12 @@ def cita_delete(request, pk):
         cita.delete()
         return redirect('citas:cita_list')
     return render(request, 'citas/cita_confirm_delete.html', {'cita': cita})
+
+
+# --- Vistas tipo API (para React o JSON) ---
+from rest_framework import viewsets
+from .serializers import CitaSerializer
+
+class CitaViewSet(viewsets.ModelViewSet):
+    queryset = Cita.objects.all()
+    serializer_class = CitaSerializer

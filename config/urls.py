@@ -7,5 +7,6 @@ urlpatterns = [
     path('pacientes/', include('pacientes.urls', namespace='paciente_list')),
     path('medicos/', include('medicos.urls', namespace='medico_list')),
     path('citas/', include('citas.urls', namespace='citas')),
+    path('api/', include('citas.api_urls')),
  
 ]
