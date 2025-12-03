@@ -8,5 +8,5 @@ urlpatterns = [
     path('medicos/', include('medicos.urls', namespace='medico_list')),
     path('citas/', include('citas.urls', namespace='citas')),
     path('api/', include('citas.api_urls')),
- 
+    path('api/', include('medicos.api_urls')),
 ]
