@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CitasList from "./CitasList";
 import CitaForm from "./CitaForm";
 import MedicosList from "./MedicosList"; 
+import PacientesList from "./components/PacientesList";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/editar/:id" element={<CitaForm />} />
              {/* NUEVA RUTA */}
         <Route path="/medicos" element={<MedicosList />} />
+        <Route path="/pacientes" element={<PacientesList />} /> 
       </Routes>
     </Router>
   );

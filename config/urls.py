@@ -9,4 +9,5 @@ urlpatterns = [
     path('citas/', include('citas.urls', namespace='citas')),
     path('api/', include('citas.api_urls')),
     path('api/', include('medicos.api_urls')),
+    path('api/pacientes/', include('pacientes.api_urls')),  
 ]
