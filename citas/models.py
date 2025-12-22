@@ -17,3 +17,38 @@ class Cita(models.Model):
 
     def __str__(self):
         return f"Cita {self.paciente.nombre} con {self.medico.nombre} el {self.fecha}"
+
+
+
+"""
+CitasList
+
+Tiene el estado citas
+
+Hace GET /api/citas/
+
+CitasList renderiza:
+
+La lista
+
+El <CitaForm />
+
+CitasList le pasa a CitaForm una función:
+
+onCitaCreada
+
+CitaForm:
+
+Hace el POST
+
+Cuando Django responde OK
+
+Llama a onCitaCreada(nuevaCita)
+
+CitasList:
+
+Agrega esa cita al estado
+
+React re-renderiza
+
+🎉 aparece sin recargar"""

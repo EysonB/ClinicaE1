@@ -1,6 +1,8 @@
 // src/CitasList.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BackButton from "./components/BackButton";
+
 
 const BASE = "http://127.0.0.1:8000/api";
 
@@ -45,6 +47,7 @@ export default function CitasList() {
 
   return (
     <div style={{ padding: 20 }}>
+      <BackButton />
       <h2>Lista de Citas</h2>
       <div style={{ marginBottom: 12 }}>
         <button onClick={() => navigate("/crear")}>Nueva Cita</button>

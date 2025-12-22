@@ -9,4 +9,4 @@ class CitaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cita
-        fields = ['id', 'paciente', 'paciente_nombre', 'medico', 'medico_nombre', 'fecha', 'hora', 'motivo']
+        fields = '__all__'
