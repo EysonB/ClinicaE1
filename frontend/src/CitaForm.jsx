@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
-const CitaForm = ({ onCitaCreada }) => {
+
+const CitaForm = () => {
+  const navigate = useNavigate();
+  const { id } = useParams(); // si existe, es edición
+  const esEdicion = Boolean(id);
   const [paciente, setPaciente] = useState("");
   const [medico, setMedico] = useState("");
   const [fecha, setFecha] = useState("");
@@ -23,25 +28,34 @@ const CitaForm = ({ onCitaCreada }) => {
   }, []);
 
   // 🔵 2. Enviar la cita
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = (e) => {
+  e.preventDefault();
 
-    axios.post("http://127.0.0.1:8000/api/citas/", {
-      paciente,
-      medico,
-      fecha,
-      hora,
-      motivo,
-    })
-    .then((res) => {
-      onCitaCreada(res.data);
-    })
-    .catch((err) => console.error(err));
+  const data = {
+    paciente,
+    medico,
+    fecha,
+    hora,
+    motivo,
   };
+
+  const request = esEdicion
+    ? axios.put(`http://127.0.0.1:8000/api/citas/${id}/`, data)
+    : axios.post("http://127.0.0.1:8000/api/citas/", data);
+
+  request
+    .then(() => {
+      navigate("/citas"); // 🔴 VUELVE A LA LISTA
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("Error al guardar la cita");
+    });
+};
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Nueva Cita</h2>
+      <h2>{esEdicion ? "Editar Cita" : "Nueva Cita"}</h2>
 
       {/* PACIENTE */}
       <label>Paciente</label>
@@ -73,7 +87,9 @@ const CitaForm = ({ onCitaCreada }) => {
       <label>Motivo</label>
       <input type="text" value={motivo} onChange={e => setMotivo(e.target.value)} />
 
-      <button type="submit">Crear Cita</button>
+      <button type="submit">
+        {esEdicion ? "Actualizar Cita" : "Crear Cita"}
+      </button>
     </form>
   );
 };

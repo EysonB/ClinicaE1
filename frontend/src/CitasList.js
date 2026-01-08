@@ -50,7 +50,7 @@ export default function CitasList() {
       <BackButton />
       <h2>Lista de Citas</h2>
       <div style={{ marginBottom: 12 }}>
-        <button onClick={() => navigate("/crear")}>Nueva Cita</button>
+        <button onClick={() => navigate("/citas/crear")}>Nueva Cita</button>
         <button onClick={() => obtenerCitas()} style={{ marginLeft: 8 }}>
           Refresh
         </button>
@@ -83,7 +83,14 @@ export default function CitasList() {
                 <td>{c.hora}</td>
                 <td>{c.motivo}</td>
                 <td>
-                  <button onClick={() => navigate(`/editar/${c.id}`)}>Editar</button>
+                  <button onClick={() => navigate(`/citas/${c.id}`)}>
+                    Ver
+                  </button>
+                  <button onClick={() => navigate(`/editar/${c.id}`)}
+                    style={{ marginLeft: 6 }}
+                    >
+                    Editar
+                  </button>
                   <button
                     onClick={() => borrarCita(c.id)}
                     style={{ marginLeft: 8, background: "tomato", color: "white" }}

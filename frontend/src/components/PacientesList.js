@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function PacientesList() {
   const [pacientes, setPacientes] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get("http://127.0.0.1:8000/api/pacientes/")
@@ -17,7 +19,10 @@ function PacientesList() {
   return (
     <div style={{ padding: "20px" }}>
       <h2>Lista de Pacientes</h2>
-
+          {/* 🔴 AQUÍ VA EL navigate */}
+        <button onClick={() => navigate("/pacientes/crear")}>
+        Nuevo Paciente
+        </button>
       {pacientes.length === 0 ? (
         <p>No hay pacientes registrados.</p>
       ) : (
