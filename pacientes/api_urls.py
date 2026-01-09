@@ -1,7 +1,10 @@
-from rest_framework.routers import DefaultRouter
-from .views import PacienteViewSet
+from django.urls import path
+from .api_views import (
+    PacienteListCreateAPIView,
+    PacienteDetailAPIView
+)
 
-router = DefaultRouter()
-router.register(r'pacientes', PacienteViewSet)
-
-urlpatterns = router.urls
+urlpatterns = [
+    path('pacientes/', PacienteListCreateAPIView.as_view(), name='api_pacientes'),
+    path('pacientes/<int:pk>/', PacienteDetailAPIView.as_view(), name='api_paciente_detail'),
+]

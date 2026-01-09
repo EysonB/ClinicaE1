@@ -8,6 +8,8 @@ import MedicosList from "./MedicosList";
 import PacientesList from "./components/PacientesList";
 import CitaDetail from "./CitaDetail";
 import PacienteForm from "./components/PacienteForm";
+import MedicoForm from "./MedicoForm";
+
 
 
 
@@ -25,6 +27,7 @@ function App() {
 
         {/* MEDICOS */}
         <Route path="/medicos" element={<MedicosList />} />
+        <Route path="/medicos/nuevo" element={<MedicoForm />} />
 
         {/* PACIENTES */}
         <Route path="/pacientes" element={<PacientesList />} />

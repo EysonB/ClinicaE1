@@ -1,6 +1,13 @@
-from django.http import JsonResponse
+from rest_framework import generics
 from .models import Paciente
+from .serializers import PacienteSerializer
 
-def pacientes_api(request):
-    pacientes = list(Paciente.objects.values())
-    return JsonResponse(pacientes, safe=False)
+
+class PacienteListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Paciente.objects.all()
+    serializer_class = PacienteSerializer
+
+
+class PacienteDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Paciente.objects.all()
+    serializer_class = PacienteSerializer
