@@ -1,7 +1,8 @@
 // src/CitasList.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import BackButton from "./components/BackButton";
+//import BackButton from "./components/NavButtons";
+
 
 
 const BASE = "http://127.0.0.1:8000/api";
@@ -47,10 +48,10 @@ export default function CitasList() {
 
   return (
     <div style={{ padding: 20 }}>
-      <BackButton />
+      
       <h2>Lista de Citas</h2>
       <div style={{ marginBottom: 12 }}>
-        <button onClick={() => navigate("/citas/crear")}>Nueva Cita</button>
+        <button onClick={() => navigate("/citas/nueva")}>Nueva Cita</button>
         <button onClick={() => obtenerCitas()} style={{ marginLeft: 8 }}>
           Refresh
         </button>
@@ -86,7 +87,7 @@ export default function CitasList() {
                   <button onClick={() => navigate(`/citas/${c.id}`)}>
                     Ver
                   </button>
-                  <button onClick={() => navigate(`/editar/${c.id}`)}
+                  <button onClick={() => navigate(`/citas/editar/${c.id}`)}
                     style={{ marginLeft: 6 }}
                     >
                     Editar

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
 function PacientesList() {
   const [pacientes, setPacientes] = useState([]);
   const navigate = useNavigate();

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
+
+
 const BASE = "http://127.0.0.1:8000/api";
 
 export default function CitaDetail() {
@@ -19,6 +21,7 @@ export default function CitaDetail() {
 
   return (
     <div style={{ padding: 20 }}>
+      
       <button onClick={() => navigate(-1)}>⬅ Volver</button>
 
       <h2>Detalle de Cita #{cita.id}</h2>

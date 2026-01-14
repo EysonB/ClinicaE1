@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 
 
+
 const CitaForm = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // si existe, es edición
@@ -54,6 +55,8 @@ const CitaForm = () => {
 };
 
   return (
+    <div>
+      
     <form onSubmit={handleSubmit}>
       <h2>{esEdicion ? "Editar Cita" : "Nueva Cita"}</h2>
 
@@ -91,6 +94,7 @@ const CitaForm = () => {
         {esEdicion ? "Actualizar Cita" : "Crear Cita"}
       </button>
     </form>
+    </div>
   );
 };
 

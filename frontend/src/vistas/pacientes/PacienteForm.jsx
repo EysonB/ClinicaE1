@@ -1,7 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import BackButton from "./BackButton";
+import BackButton from "../../components/BackButton";
+
 
 export default function PacienteForm() {
   const navigate = useNavigate();
