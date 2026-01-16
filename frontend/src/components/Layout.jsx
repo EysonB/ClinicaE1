@@ -1,14 +1,17 @@
 import { Outlet, useLocation } from "react-router-dom";
 import NavButtons from "./NavButtons";
 
-export default function Layout() {
-  const location = useLocation();
-  const esHome = location.pathname === "/";
 
+export default function Layout() {
   return (
-    <div>
-      {!esHome && <NavButtons />}
+    <div style={{ padding: 20 }}>
+      
+      {/* BOTONES GLOBALES */}
+      <NavButtons />
+
+      {/* 👇 ESTO ES OBLIGATORIO */}
       <Outlet />
+
     </div>
   );
 }

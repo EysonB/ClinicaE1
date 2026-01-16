@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 import Home from "./vistas/Home";
 
@@ -19,8 +22,11 @@ import CitaDetail from "./vistas/citas/CitaDetail";
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
 
+      {/* TOAST GLOBAL (FUERA DE ROUTES) */}
+      <ToastContainer position="top-right" autoClose={3000} />
+
+      <Routes>
         {/* TODAS LAS RUTAS USAN EL LAYOUT */}
         <Route element={<Layout />}>
           
@@ -33,7 +39,7 @@ function App() {
 
           {/* PACIENTES */}
           <Route path="/pacientes" element={<PacienteList />} />
-          <Route path="/pacientes/nuevo" element={<PacienteForm />} />
+          <Route path="/pacientes/crear" element={<PacienteForm />} />
           <Route path="/pacientes/editar/:id" element={<PacienteForm />} />
 
           {/* CITAS */}
@@ -41,11 +47,12 @@ function App() {
           <Route path="/citas/nueva" element={<CitaForm />} />
           <Route path="/citas/editar/:id" element={<CitaForm />} />
           <Route path="/citas/:id" element={<CitaDetail />} />
-        </Route>
 
+        </Route>
       </Routes>
     </BrowserRouter>
   );
 }
+
 
 export default App;
