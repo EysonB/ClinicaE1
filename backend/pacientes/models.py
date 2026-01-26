@@ -2,12 +2,6 @@ from django.db import models
 from django.core.validators import RegexValidator
 
 
-class Atencion(models.Model):
-    cita = models.OneToOneField(
-        "citas.Cita",
-        on_delete=models.CASCADE
-    )
-
 
 class Paciente(models.Model):
     # Validador para solo números

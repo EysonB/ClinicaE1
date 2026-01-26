@@ -17,7 +17,7 @@ class Cita(models.Model):
 
     ESTADO_CHOICES = [
         ('pendiente', 'Pendiente'),
-        ('completada', 'Completada'),
+        ('atendida', 'Atendida'),
         ('cancelada', 'Cancelada'),
     ]
     estado = models.CharField(

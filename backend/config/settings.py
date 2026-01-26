@@ -50,7 +50,9 @@ INSTALLED_APPS = [
      'corsheaders',
     'pacientes.apps.PacientesConfig',
     'medicos.apps.MedicosConfig',
-    'citas.apps.CitasConfig'
+    'citas.apps.CitasConfig',
+    'atenciones.apps.AtencionesConfig',
+    'facturas.apps.FacturasConfig',
 ]
 
 MIDDLEWARE = [
