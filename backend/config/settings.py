@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'citas.apps.CitasConfig',
     'atenciones.apps.AtencionesConfig',
     'facturas.apps.FacturasConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [

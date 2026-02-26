@@ -46,7 +46,7 @@ class AtencionSerializer(serializers.ModelSerializer):
             'cita_hora',
             'tiene_factura',
         ]
-        read_only_fields = ['fecha_creacion']
+        read_only_fields = ['fecha_creacion', 'paciente', 'medico']  # 👈 agrega paciente y medico
 
     def get_tiene_factura(self, obj):
         return hasattr(obj, 'factura')
@@ -74,6 +74,7 @@ class AtencionListSerializer(serializers.ModelSerializer):
         model = Atencion
         fields = [
             'id',
+            'medico',
             'paciente_nombre_completo',
             'medico_nombre_completo',
             'diagnostico',
@@ -81,6 +82,7 @@ class AtencionListSerializer(serializers.ModelSerializer):
             'estado_pago',
             'fecha_atencion',
         ]
+        
 
     def get_paciente_nombre_completo(self, obj):
         return f"{obj.paciente.nombre} {obj.paciente.apellido}"
