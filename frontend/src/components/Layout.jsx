@@ -14,6 +14,7 @@ export default function Layout() {
       {/* Contenido principal */}
       <main className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
+          
           <Outlet />
         </div>
       </main>

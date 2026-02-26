@@ -12,6 +12,24 @@ export default function Home() {
       color: "bg-blue-500 hover:bg-blue-600"
     },
     {
+      title: "🩺 Atenciones",
+      description: "Registrar y consultar atenciones médicas",
+      path: "/atenciones",
+      color: "bg-emerald-500 hover:bg-emerald-600"
+    },
+    {
+      title: "💰 Pendientes de Cobro",
+      description: "Atenciones pendientes de facturación",
+      path: "/facturacion/pendientes",
+      color: "bg-yellow-500 hover:bg-yellow-600"
+    },
+    {
+      title: "🧾 Facturas",
+      description: "Historial de facturas emitidas",
+      path: "/facturas",
+      color: "bg-orange-500 hover:bg-orange-600"
+    },
+    {
       title: "👥 Pacientes",
       description: "Administrar pacientes",
       path: "/pacientes",
@@ -24,6 +42,7 @@ export default function Home() {
       color: "bg-purple-500 hover:bg-purple-600"
     }
   ];
+
 
   return (
     <div className="space-y-8">
@@ -47,7 +66,7 @@ export default function Home() {
           >
             {/* Color top bar */}
             <div className={`h-2 ${module.color.split(' ')[0]}`}></div>
-            
+
             {/* Contenido */}
             <div className="p-6">
               <h3 className="text-2xl font-bold text-gray-800 mb-2">
