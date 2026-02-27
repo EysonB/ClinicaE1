@@ -1,9 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import UsuariosList from "./vistas/usuarios/UsuariosList";
-import UsuarioForm from "./vistas/usuarios/UsuarioForm";
-
 
 import Layout from "./components/Layout";
 import Login from "./vistas/auth/Login";
@@ -37,16 +34,31 @@ import FacturaDetail from "./vistas/facturas/FacturaDetail";
 // FACTURACIÓN
 import PendientesCobro from "./vistas/facturacion/PendientesCobro";
 
-// 🔐 FUERA del componente App
-const isAuthenticated = () => {
-  return !!localStorage.getItem("userId");
-};
+// USUARIOS
+import UsuariosList from "./vistas/usuarios/UsuariosList";
+import UsuarioForm from "./vistas/usuarios/UsuarioForm";
 
-const ProtectedRoute = ({ children }) => {
+// 🔐 Verificar autenticación
+const isAuthenticated = () => !!localStorage.getItem("userId");
+const getRole = () => localStorage.getItem("userRole");
+
+// 🛡️ Ruta protegida por autenticación y rol
+const ProtectedRoute = ({ children, roles }) => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
+  if (roles && !roles.includes(getRole())) {
+    return <Navigate to="/" replace />;
+  }
   return children;
+};
+
+// 🏗️ Layout protegido
+const ProtectedLayout = () => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  return <Layout />;
 };
 
 function App() {
@@ -55,45 +67,132 @@ function App() {
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
 
+        {/* 🟢 PÚBLICA */}
         <Route path="/login" element={<Login />} />
 
-        <Route
-          element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
+        {/* 🔒 PROTEGIDAS */}
+        <Route element={<ProtectedLayout />}>
+
+          {/* HOME - todos los roles */}
           <Route path="/" element={<Home />} />
 
-          <Route path="/medicos" element={<MedicosList />} />
-          <Route path="/medicos/nuevo" element={<MedicoForm />} />
-          <Route path="/medicos/editar/:id" element={<MedicoForm />} />
+          {/* MÉDICOS - superadmin y enfermera */}
+          <Route path="/medicos" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <MedicosList />
+            </ProtectedRoute>
+          } />
+          <Route path="/medicos/nuevo" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <MedicoForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/medicos/editar/:id" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <MedicoForm />
+            </ProtectedRoute>
+          } />
 
-          <Route path="/pacientes" element={<PacienteList />} />
-          <Route path="/pacientes/crear" element={<PacienteForm />} />
-          <Route path="/pacientes/editar/:id" element={<PacienteForm />} />
+          {/* PACIENTES - superadmin y enfermera */}
+          <Route path="/pacientes" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <PacienteList />
+            </ProtectedRoute>
+          } />
+          <Route path="/pacientes/crear" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <PacienteForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/pacientes/editar/:id" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <PacienteForm />
+            </ProtectedRoute>
+          } />
 
-          <Route path="/citas" element={<CitasList />} />
-          <Route path="/citas/nueva" element={<CitaForm />} />
-          <Route path="/citas/editar/:id" element={<CitaForm />} />
-          <Route path="/citas/:id" element={<CitaDetail />} />
+          {/* CITAS - todos los roles */}
+          <Route path="/citas" element={
+            <ProtectedRoute roles={["superadmin", "enfermera", "medico"]}>
+              <CitasList />
+            </ProtectedRoute>
+          } />
+          <Route path="/citas/nueva" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <CitaForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/citas/editar/:id" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <CitaForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/citas/:id" element={
+            <ProtectedRoute roles={["superadmin", "enfermera", "medico"]}>
+              <CitaDetail />
+            </ProtectedRoute>
+          } />
 
-          <Route path="/atenciones" element={<AtencionesList />} />
-          <Route path="/atenciones/nueva/:citaId" element={<AtencionForm />} />
-          <Route path="/atenciones/:id" element={<AtencionDetail />} />
+          {/* ATENCIONES - todos los roles */}
+          <Route path="/atenciones" element={
+            <ProtectedRoute roles={["superadmin", "enfermera", "medico"]}>
+              <AtencionesList />
+            </ProtectedRoute>
+          } />
+          <Route path="/atenciones/nueva/:citaId" element={
+            <ProtectedRoute roles={["superadmin", "medico"]}>
+              <AtencionForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/atenciones/:id" element={
+            <ProtectedRoute roles={["superadmin", "enfermera", "medico"]}>
+              <AtencionDetail />
+            </ProtectedRoute>
+          } />
 
-          <Route path="/facturas" element={<FacturasList />} />
-          <Route path="/facturas/nueva/:atencionId" element={<FacturaForm />} />
-          <Route path="/facturas/:id" element={<FacturaDetail />} />
+          {/* FACTURAS - superadmin y enfermera */}
+          <Route path="/facturas" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <FacturasList />
+            </ProtectedRoute>
+          } />
+          <Route path="/facturas/nueva/:atencionId" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <FacturaForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/facturas/:id" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <FacturaDetail />
+            </ProtectedRoute>
+          } />
 
-          <Route path="/facturacion/pendientes" element={<PendientesCobro />} />
+          {/* FACTURACIÓN - superadmin y enfermera */}
+          <Route path="/facturacion/pendientes" element={
+            <ProtectedRoute roles={["superadmin", "enfermera"]}>
+              <PendientesCobro />
+            </ProtectedRoute>
+          } />
 
-          <Route path="/usuarios" element={<UsuariosList />} />
-          <Route path="/usuarios/nuevo" element={<UsuarioForm />} />
-          <Route path="/usuarios/editar/:id" element={<UsuarioForm />} />
+          {/* USUARIOS - solo superadmin */}
+          <Route path="/usuarios" element={
+            <ProtectedRoute roles={["superadmin"]}>
+              <UsuariosList />
+            </ProtectedRoute>
+          } />
+          <Route path="/usuarios/nuevo" element={
+            <ProtectedRoute roles={["superadmin"]}>
+              <UsuarioForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/usuarios/editar/:id" element={
+            <ProtectedRoute roles={["superadmin"]}>
+              <UsuarioForm />
+            </ProtectedRoute>
+          } />
+
         </Route>
 
+        {/* 🚨 CUALQUIER OTRA RUTA */}
         <Route path="*" element={<Navigate to="/login" replace />} />
 
       </Routes>
