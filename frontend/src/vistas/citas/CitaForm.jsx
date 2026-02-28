@@ -1,213 +1,121 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import Select from "react-select";
 import { toast } from "react-toastify";
+import API_BASE from "../../config";
 
-const CitaForm = () => {
+export default function CitaForm() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const esEdicion = Boolean(id);
+  const esEdicion = !!id;
 
-  const [paciente, setPaciente] = useState(null);
-  const [medico, setMedico] = useState(null);
-  const [fecha, setFecha] = useState("");
-  const [hora, setHora] = useState("");
-  const [motivo, setMotivo] = useState("");
+  const [pacientes, setPacientes] = useState([]);
+  const [medicos, setMedicos] = useState([]);
+  const [formData, setFormData] = useState({
+    paciente: "",
+    medico: "",
+    fecha: "",
+    hora: "",
+    motivo: "",
+    estado: "pendiente",
+  });
 
-  const [pacientesList, setPacientesList] = useState([]);
-  const [medicosList, setMedicosList] = useState([]);
-
-  // 🔵 Cargar pacientes y médicos
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/pacientes/")
-      .then(res => {
-        const options = res.data.map(p => ({
-          value: p.id,
-          label: `${p.nombre} ${p.apellido} - ${p.cedula}`
-        }));
-        setPacientesList(options);
-      })
-      .catch(err => console.error("Error cargando pacientes:", err));
+    axios.get(`${API_BASE}/pacientes/`).then(res => setPacientes(res.data));
+    axios.get(`${API_BASE}/medicos/`).then(res => setMedicos(res.data));
 
-    axios.get("http://127.0.0.1:8000/api/medicos/")
-      .then(res => {
-        const options = res.data.map(m => ({
-          value: m.id,
-          label: `Dr. ${m.nombre} ${m.apellido} - ${m.especialidad}`
-        }));
-        setMedicosList(options);
-      })
-      .catch(err => console.error("Error cargando médicos:", err));
-  }, []);
-
-  // 🔵 Cargar datos si es edición
-  useEffect(() => {
     if (esEdicion) {
-      axios.get(`http://127.0.0.1:8000/api/citas/${id}/`)
-        .then(res => {
-          const cita = res.data;
-          setFecha(cita.fecha);
-          setHora(cita.hora);
-          setMotivo(cita.motivo);
-          
-          setPaciente({ value: cita.paciente, label: "Cargando..." });
-          setMedico({ value: cita.medico, label: "Cargando..." });
-        })
-        .catch(() => {
-          toast.error("Error al cargar la cita");
-          navigate("/citas");
+      axios.get(`${API_BASE}/citas/${id}/`).then(res => {
+        const c = res.data;
+        setFormData({
+          paciente: c.paciente,
+          medico: c.medico,
+          fecha: c.fecha,
+          hora: c.hora,
+          motivo: c.motivo,
+          estado: c.estado,
         });
+      }).catch(() => {
+        toast.error("Error al cargar la cita");
+        navigate("/citas");
+      });
     }
-  }, [esEdicion, id, navigate]);
+  }, [id]);
 
-  // 🔵 Enviar la cita
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!paciente || !medico) {
-      toast.error("Debe seleccionar paciente y médico");
-      return;
-    }
-
-    const data = {
-      paciente: paciente.value,
-      medico: medico.value,
-      fecha,
-      hora,
-      motivo,
-    };
-
     const request = esEdicion
-      ? axios.put(`http://127.0.0.1:8000/api/citas/${id}/`, data)
-      : axios.post("http://127.0.0.1:8000/api/citas/", data);
+      ? axios.put(`${API_BASE}/citas/${id}/`, formData)
+      : axios.post(`${API_BASE}/citas/`, formData);
 
     request
       .then(() => {
-        toast.success(esEdicion ? "Cita actualizada correctamente" : "Cita creada correctamente");
+        toast.success(esEdicion ? "Cita actualizada" : "Cita creada correctamente");
         navigate("/citas");
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(err => {
+        console.error(err.response?.data);
         toast.error("Error al guardar la cita");
       });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
-            {esEdicion ? "✏️ Editar Cita" : "➕ Nueva Cita"}
-          </h2>
-          <p className="text-gray-600 mt-1">
-            {esEdicion ? "Modifica los datos de la cita" : "Complete el formulario para agendar una cita"}
-          </p>
-        </div>
-
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
-          
-          {/* Paciente */}
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Paciente <span className="text-red-500">*</span>
-            </label>
-            <Select
-              value={paciente}
-              onChange={setPaciente}
-              options={pacientesList}
-              placeholder="Buscar paciente por nombre o cédula..."
-              isClearable
-              isSearchable
-              noOptionsMessage={() => "No se encontraron pacientes"}
-              className="text-sm"
-            />
+    <div className="max-w-2xl mx-auto">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          {esEdicion ? "✏️ Editar Cita" : "➕ Nueva Cita"}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Paciente <span className="text-red-500">*</span></label>
+            <select name="paciente" value={formData.paciente} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+              <option value="">Seleccionar paciente...</option>
+              {pacientes.map(p => <option key={p.id} value={p.id}>{p.nombre} {p.apellido}</option>)}
+            </select>
           </div>
-
-          {/* Médico */}
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Médico <span className="text-red-500">*</span>
-            </label>
-            <Select
-              value={medico}
-              onChange={setMedico}
-              options={medicosList}
-              placeholder="Buscar médico por nombre o especialidad..."
-              isClearable
-              isSearchable
-              noOptionsMessage={() => "No se encontraron médicos"}
-              className="text-sm"
-            />
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Médico <span className="text-red-500">*</span></label>
+            <select name="medico" value={formData.medico} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+              <option value="">Seleccionar médico...</option>
+              {medicos.map(m => <option key={m.id} value={m.id}>Dr. {m.nombre} {m.apellido} - {m.especialidad}</option>)}
+            </select>
           </div>
-
-          {/* Fecha y Hora en grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {/* Fecha */}
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Fecha <span className="text-red-500">*</span>
-              </label>
-              <input 
-                type="date" 
-                value={fecha} 
-                onChange={e => setFecha(e.target.value)} 
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Fecha <span className="text-red-500">*</span></label>
+              <input type="date" name="fecha" value={formData.fecha} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
-
-            {/* Hora */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Hora <span className="text-red-500">*</span>
-              </label>
-              <input 
-                type="time" 
-                value={hora} 
-                onChange={e => setHora(e.target.value)} 
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Hora <span className="text-red-500">*</span></label>
+              <input type="time" name="hora" value={formData.hora} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
-
-          {/* Motivo */}
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Motivo de la consulta
-            </label>
-            <textarea
-              value={motivo}
-              onChange={e => setMotivo(e.target.value)}
-              placeholder="Describe el motivo de la consulta..."
-              rows="4"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            />
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Motivo <span className="text-red-500">*</span></label>
+            <textarea name="motivo" value={formData.motivo} onChange={handleChange} required rows="3" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none" />
           </div>
-
-          {/* Botones */}
-          <div className="flex gap-3 justify-end">
-            <button
-              type="button"
-              onClick={() => navigate("/citas")}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {esEdicion ? "💾 Guardar Cambios" : "✅ Crear Cita"}
+          {esEdicion && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Estado</label>
+              <select name="estado" value={formData.estado} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option value="pendiente">Pendiente</option>
+                <option value="atendida">Atendida</option>
+                <option value="cancelada">Cancelada</option>
+              </select>
+            </div>
+          )}
+          <div className="flex gap-3 justify-end pt-4">
+            <button type="button" onClick={() => navigate("/citas")} className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Cancelar</button>
+            <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              {esEdicion ? "💾 Actualizar" : "✅ Crear Cita"}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-};
-
-export default CitaForm;
+}

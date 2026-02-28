@@ -1,209 +1,100 @@
+// FacturaDetail.jsx
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import API_BASE from "../../config";
 
-export default function FacturaForm() {
+export default function FacturaDetail() {
   const navigate = useNavigate();
-  const { atencionId } = useParams(); // ID de la atención a facturar
-
-  const [atencion, setAtencion] = useState(null);
-  const [metodoPago, setMetodoPago] = useState("");
+  const { id } = useParams();
+  const [factura, setFactura] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [procesando, setProcesando] = useState(false);
 
   useEffect(() => {
-    // Cargar datos de la atención
     axios
-      .get(`http://127.0.0.1:8000/api/atenciones/${atencionId}/`)
-      .then(res => {
-        if (res.data.estado_pago === 'pagado') {
-          toast.error("Esta atención ya está pagada");
-          navigate("/facturacion/pendientes");
-          return;
-        }
-        setAtencion(res.data);
-        setLoading(false);
-      })
-      .catch(() => {
-        toast.error("Error al cargar la atención");
-        navigate("/facturacion/pendientes");
-      });
-  }, [atencionId, navigate]);
+      .get(`${API_BASE}/facturas/${id}/`)
+      .then(res => { setFactura(res.data); setLoading(false); })
+      .catch(() => { toast.error("Error al cargar la factura"); navigate("/facturas"); });
+  }, [id, navigate]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!metodoPago) {
-      toast.error("Debe seleccionar un método de pago");
-      return;
-    }
-
-    setProcesando(true);
-
-    const data = {
-      atencion: parseInt(atencionId),
-      metodo_pago: metodoPago,
-      // NO necesitas monto, el backend lo toma solo
-    };
-
-    axios
-      .post("http://127.0.0.1:8000/api/facturas/", data)
-      .then((response) => {
-        toast.success(`Factura ${response.data.numero_factura} generada correctamente`);
-        navigate(`/facturas/${response.data.id}`);
-      })
-      .catch(err => {
-        console.error(err);
-        if (err.response?.data?.atencion) {
-          toast.error("Esta atención ya tiene una factura");
-        } else {
-          toast.error("Error al generar la factura");
-        }
-        setProcesando(false);
-      });
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-          <p className="mt-4 text-gray-600">Cargando información...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="p-8 text-center"><div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div></div>;
+  if (!factura) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            💰 Generar Factura
-          </h2>
-          
-          {/* Información de la Atención */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <h3 className="font-semibold text-blue-900 mb-3">Información de la Atención:</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6 flex gap-3 print:hidden">
+          <button onClick={() => navigate("/facturas")} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">← Volver</button>
+          <button onClick={() => window.print()} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">🖨️ Imprimir</button>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-8 print:shadow-none">
+          <div className="border-b-2 border-gray-300 pb-6 mb-6">
+            <div className="flex justify-between items-start">
               <div>
-                <span className="text-gray-600">Paciente:</span>
-                <p className="font-medium text-gray-900">
-                  {atencion?.paciente_nombre} {atencion?.paciente_apellido}
-                </p>
+                <h1 className="text-3xl font-bold text-gray-800">🏥 Clínica UD</h1>
+                <p className="text-gray-600 mt-1">Sistema de Gestión Médica</p>
               </div>
-              <div>
-                <span className="text-gray-600">Cédula:</span>
-                <p className="font-medium text-gray-900">{atencion?.paciente_cedula}</p>
-              </div>
-              <div>
-                <span className="text-gray-600">Médico:</span>
-                <p className="font-medium text-gray-900">
-                  Dr. {atencion?.medico_nombre} {atencion?.medico_apellido}
-                </p>
-              </div>
-              <div>
-                <span className="text-gray-600">Especialidad:</span>
-                <p className="font-medium text-gray-900">{atencion?.medico_especialidad}</p>
-              </div>
-              <div className="col-span-2">
-                <span className="text-gray-600">Diagnóstico:</span>
-                <p className="font-medium text-gray-900">{atencion?.diagnostico}</p>
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Factura N°:</p>
+                <p className="text-2xl font-bold text-blue-600">{factura.numero_factura}</p>
+                <p className="text-sm text-gray-600 mt-2">Fecha:</p>
+                <p className="font-medium">{new Date(factura.fecha_emision).toLocaleDateString()}</p>
               </div>
             </div>
           </div>
-
-          {/* Monto Total */}
-          <div className="bg-green-50 border-2 border-green-500 rounded-lg p-4 text-center">
-            <p className="text-sm text-gray-600 mb-1">Monto Total a Cobrar:</p>
-            <p className="text-4xl font-bold text-green-600">${atencion?.monto}</p>
+          <div className="mb-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-3">Datos del Paciente:</h3>
+            <div className="bg-gray-50 p-4 rounded-lg grid grid-cols-2 gap-3">
+              <div><span className="text-sm text-gray-600">Nombre:</span><p className="font-medium">{factura.paciente_nombre} {factura.paciente_apellido}</p></div>
+              <div><span className="text-sm text-gray-600">Cédula:</span><p className="font-medium">{factura.paciente_cedula}</p></div>
+            </div>
+          </div>
+          <div className="mb-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-3">Médico Tratante:</h3>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <span className="text-sm text-gray-600">Nombre:</span>
+              <p className="font-medium">Dr. {factura.medico_nombre} {factura.medico_apellido}</p>
+            </div>
+          </div>
+          <div className="mb-6">
+            <table className="w-full border border-gray-300">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="text-left p-3 border-b border-gray-300">Descripción</th>
+                  <th className="text-right p-3 border-b border-gray-300">Monto</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="p-3 border-b border-gray-200"><p className="font-medium">Consulta Médica</p><p className="text-sm text-gray-600">{factura.diagnostico}</p></td>
+                  <td className="text-right p-3 border-b border-gray-200 font-medium">${factura.monto}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="border-t-2 border-gray-300 pt-4">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <p className="text-sm text-gray-600">Método de Pago:</p>
+                <p className="font-semibold">
+                  {factura.metodo_pago === 'efectivo' && '💵 Efectivo'}
+                  {factura.metodo_pago === 'tarjeta' && '💳 Tarjeta'}
+                  {factura.metodo_pago === 'transferencia' && '🏦 Transferencia'}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Total Pagado:</p>
+                <p className="text-3xl font-bold text-green-600">${factura.monto}</p>
+              </div>
+            </div>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+              <p className="text-green-800 font-semibold">✓ PAGADO</p>
+            </div>
           </div>
         </div>
-
-        {/* Formulario de Pago */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
-          
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Método de Pago</h3>
-
-          {/* Opciones de Pago */}
-          <div className="space-y-3 mb-6">
-            <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-              <input
-                type="radio"
-                name="metodo_pago"
-                value="efectivo"
-                checked={metodoPago === "efectivo"}
-                onChange={e => setMetodoPago(e.target.value)}
-                className="w-5 h-5 text-blue-600"
-              />
-              <div className="ml-3 flex items-center gap-2">
-                <span className="text-2xl">💵</span>
-                <div>
-                  <p className="font-semibold text-gray-900">Efectivo</p>
-                  <p className="text-xs text-gray-500">Pago en efectivo</p>
-                </div>
-              </div>
-            </label>
-
-            <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-              <input
-                type="radio"
-                name="metodo_pago"
-                value="tarjeta"
-                checked={metodoPago === "tarjeta"}
-                onChange={e => setMetodoPago(e.target.value)}
-                className="w-5 h-5 text-blue-600"
-              />
-              <div className="ml-3 flex items-center gap-2">
-                <span className="text-2xl">💳</span>
-                <div>
-                  <p className="font-semibold text-gray-900">Tarjeta</p>
-                  <p className="text-xs text-gray-500">Débito o crédito</p>
-                </div>
-              </div>
-            </label>
-
-            <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-              <input
-                type="radio"
-                name="metodo_pago"
-                value="transferencia"
-                checked={metodoPago === "transferencia"}
-                onChange={e => setMetodoPago(e.target.value)}
-                className="w-5 h-5 text-blue-600"
-              />
-              <div className="ml-3 flex items-center gap-2">
-                <span className="text-2xl">🏦</span>
-                <div>
-                  <p className="font-semibold text-gray-900">Transferencia</p>
-                  <p className="text-xs text-gray-500">Transferencia bancaria</p>
-                </div>
-              </div>
-            </label>
-          </div>
-
-          {/* Botones */}
-          <div className="flex gap-3 justify-end">
-            <button
-              type="button"
-              onClick={() => navigate("/facturacion/pendientes")}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              disabled={procesando}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={procesando}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400"
-            >
-              {procesando ? "Generando..." : "✅ Generar Factura"}
-            </button>
-          </div>
-        </form>
       </div>
+      <style>{`@media print { body * { visibility: hidden; } .bg-white, .bg-white * { visibility: visible; } .bg-white { position: absolute; left: 0; top: 0; width: 100%; } }`}</style>
     </div>
   );
 }

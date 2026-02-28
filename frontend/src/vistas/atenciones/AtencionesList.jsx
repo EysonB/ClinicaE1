@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
+import API_BASE from "../../config";
 
-const BASE = "http://127.0.0.1:8000/api";
+const BASE = API_BASE;
 
 export default function AtencionesList() {
   const [atenciones, setAtenciones] = useState([]);
@@ -11,8 +12,6 @@ export default function AtencionesList() {
   const navigate = useNavigate();
 
   const userRole = localStorage.getItem("userRole");
-  const userId = localStorage.getItem("userId");
-
   const puedeEliminar = userRole === "superadmin";
 
   const obtenerAtenciones = async () => {
@@ -21,7 +20,6 @@ export default function AtencionesList() {
       const res = await axios.get(`${BASE}/atenciones/`);
       let data = res.data;
 
-      // Filtrar si es médico (superadmin ve todo)
       if (userRole === "medico") {
         const medicoId = localStorage.getItem("medicoId");
         data = data.filter((a) => String(a.medico) === String(medicoId));
@@ -54,7 +52,6 @@ export default function AtencionesList() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -62,48 +59,29 @@ export default function AtencionesList() {
               🩺 {userRole === "medico" ? "Mis Atenciones" : "Lista de Atenciones"}
             </h2>
             <p className="text-gray-600 mt-1">
-              {userRole === "medico"
-                ? "Atenciones registradas por usted"
-                : "Todas las atenciones médicas registradas"}
+              {userRole === "medico" ? "Atenciones registradas por usted" : "Todas las atenciones médicas registradas"}
             </p>
           </div>
-
           <div className="flex gap-3">
-            <button
-              onClick={obtenerAtenciones}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-              disabled={loading}
-            >
+            <button onClick={obtenerAtenciones} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200" disabled={loading}>
               🔄 Actualizar
             </button>
-            {/* Para crear atención hay que ir desde una cita */}
-            <button
-              onClick={() => navigate("/citas")}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
+            <button onClick={() => navigate("/citas")} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               📅 Ir a Citas
             </button>
           </div>
         </div>
       </div>
 
-      {/* Tabla */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         {loading ? (
           <div className="p-8 text-center">Cargando atenciones...</div>
         ) : atenciones.length === 0 ? (
           <div className="p-8 text-center text-gray-600">
             <div className="text-6xl mb-4">🩺</div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              No hay atenciones registradas
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Para registrar una atención, ve a Citas y haz clic en "Atender"
-            </p>
-            <button
-              onClick={() => navigate("/citas")}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">No hay atenciones registradas</h3>
+            <p className="text-gray-600 mb-4">Para registrar una atención, ve a Citas y haz clic en "Atender"</p>
+            <button onClick={() => navigate("/citas")} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               📅 Ir a Citas
             </button>
           </div>
@@ -129,40 +107,19 @@ export default function AtencionesList() {
                     <td className="px-6 py-4 max-w-xs truncate">{a.diagnostico}</td>
                     <td className="px-6 py-4 font-semibold text-gray-800">${a.monto}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        a.estado_pago === "pagado"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${a.estado_pago === "pagado" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
                         {a.estado_pago === "pagado" ? "✅ Pagado" : "⏳ Pendiente"}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      {new Date(a.fecha_atencion).toLocaleDateString()}
-                    </td>
+                    <td className="px-6 py-4">{new Date(a.fecha_atencion).toLocaleDateString()}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => navigate(`/atenciones/${a.id}`)}
-                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded"
-                        >
-                          👁️ Ver
-                        </button>
+                        <button onClick={() => navigate(`/atenciones/${a.id}`)} className="px-3 py-1 bg-blue-100 text-blue-700 rounded">👁️ Ver</button>
                         {a.estado_pago === "pendiente" && (
-                          <button
-                            onClick={() => navigate(`/facturas/nueva/${a.id}`)}
-                            className="px-3 py-1 bg-green-600 text-white rounded"
-                          >
-                            💰 Cobrar
-                          </button>
+                          <button onClick={() => navigate(`/facturas/nueva/${a.id}`)} className="px-3 py-1 bg-green-600 text-white rounded">💰 Cobrar</button>
                         )}
                         {puedeEliminar && (
-                          <button
-                            onClick={() => borrarAtencion(a.id)}
-                            className="px-3 py-1 bg-red-100 text-red-700 rounded"
-                          >
-                            🗑️ Borrar
-                          </button>
+                          <button onClick={() => borrarAtencion(a.id)} className="px-3 py-1 bg-red-100 text-red-700 rounded">🗑️ Borrar</button>
                         )}
                       </div>
                     </td>
