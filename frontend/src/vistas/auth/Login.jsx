@@ -99,7 +99,7 @@ export default function Login() {
           <div className="space-y-2">
             <div>
               <p className="font-medium">👑 Superadmin:</p>
-              <p className="text-xs ml-4">admin@clinica.com / admin123</p>
+              <p className="text-xs ml-4">hola tio / joder</p>
             </div>
             <div>
               <p className="font-medium">👩‍⚕️ Enfermera:</p>
