@@ -2,180 +2,92 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import API_BASE from "../../config";
 
-/**
- * CONFIGURACIÓN
- */
-const BASE_MEDICOS_URL = "http://127.0.0.1:8000/api/medicos/";
-const BASE_ATENCIONES_URL = "http://127.0.0.1:8000/api/atenciones/";
-
-export default function FormUnificado({ tipo }) {
-  /**
-   * tipo = "medico" | "atencion"
-   */
+export default function MedicoForm() {
   const navigate = useNavigate();
-  const { id, citaId } = useParams();
+  const { id } = useParams();
+  const esEdicion = !!id;
 
-  const userRole = localStorage.getItem("userRole");
-  const medicoId = localStorage.getItem("medicoId");
+  const [formData, setFormData] = useState({
+    nombre: "",
+    apellido: "",
+    especialidad: "",
+    email: "",
+    telefono: "",
+  });
+  const [loading, setLoading] = useState(false);
 
-  const esEdicion = Boolean(id);
-  const [loading, setLoading] = useState(true);
-
-  /**
-   * ESTADOS COMPARTIDOS
-   */
-  const [formData, setFormData] = useState({});
-  const [extraData, setExtraData] = useState(null);
-
-  /**
-   * 🔐 VALIDACIÓN DE ROL
-   */
-  const validarRol = () => {
-    if (tipo === "medico" && userRole !== "enfermera") {
-      toast.error("No tiene permisos para gestionar médicos");
-      navigate("/");
-      return false;
+  useEffect(() => {
+    if (esEdicion) {
+      setLoading(true);
+      axios.get(`${API_BASE}/medicos/${id}/`)
+        .then(res => setFormData(res.data))
+        .catch(() => { toast.error("Error al cargar médico"); navigate("/medicos"); })
+        .finally(() => setLoading(false));
     }
+  }, [id]);
 
-    if (tipo === "atencion" && userRole !== "medico") {
-      toast.error("Solo médicos pueden crear atenciones");
-      navigate("/citas");
-      return false;
-    }
-
-    return true;
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  /**
-   * 📥 CARGA DE DATOS
-   */
-  const cargarDatos = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
     try {
-      if (tipo === "medico" && esEdicion) {
-        const res = await axios.get(`${BASE_MEDICOS_URL}${id}/`);
-        setFormData(res.data);
+      if (esEdicion) {
+        await axios.put(`${API_BASE}/medicos/${id}/`, formData);
+        toast.success("Médico actualizado correctamente");
+      } else {
+        await axios.post(`${API_BASE}/medicos/`, formData);
+        toast.success("Médico creado correctamente");
       }
-
-      if (tipo === "atencion") {
-        const res = await axios.get(
-          `http://127.0.0.1:8000/api/citas/${citaId}/`
-        );
-
-        if (res.data.medico._id !== medicoId) {
-          toast.error("No puede atender citas de otro médico");
-          navigate("/citas");
-          return;
-        }
-
-        setExtraData(res.data);
-        setFormData({
-          cita: citaId,
-          diagnostico: "",
-          tratamiento: "",
-          observaciones: "",
-        });
-      }
-    } catch (error) {
-      toast.error("Error al cargar datos");
-      navigate("/");
+      navigate("/medicos");
+    } catch (err) {
+      toast.error("Error al guardar médico");
     } finally {
       setLoading(false);
     }
   };
 
-  /**
-   * ⏳ EFECTO PRINCIPAL
-   */
-  useEffect(() => {
-    if (!validarRol()) return;
-    cargarDatos();
-  }, []);
-
-  /**
-   * 📤 SUBMIT
-   */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      if (tipo === "medico") {
-        const request = esEdicion
-          ? axios.put(`${BASE_MEDICOS_URL}${id}/`, formData)
-          : axios.post(BASE_MEDICOS_URL, formData);
-
-        await request;
-        toast.success(
-          esEdicion ? "Médico actualizado" : "Médico creado correctamente"
-        );
-        navigate("/medicos");
-      }
-
-      if (tipo === "atencion") {
-        const payload = {
-          ...formData,
-          paciente: extraData.paciente._id,
-          medico: extraData.medico._id,
-          fecha: new Date(),
-        };
-
-        await axios.post(BASE_ATENCIONES_URL, payload);
-        toast.success("Atención registrada correctamente");
-        navigate("/atenciones");
-      }
-    } catch (error) {
-      toast.error("Error al guardar información");
-    }
-  };
-
-  /**
-   * ⛔ CARGANDO
-   */
-  if (loading) return <div className="p-8 text-center">Cargando...</div>;
-
-  /**
-   * 🧾 UI
-   */
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow rounded">
-      <h2 className="text-2xl font-bold mb-4">
-        {tipo === "medico"
-          ? esEdicion
-            ? "Editar Médico"
-            : "Nuevo Médico"
-          : "Registrar Atención"}
-      </h2>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {Object.keys(formData).map((key) => (
-          <div key={key}>
-            <label className="block font-medium capitalize">{key}</label>
-            <input
-              className="w-full border p-2 rounded"
-              value={formData[key] || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, [key]: e.target.value })
-              }
-            />
+    <div className="max-w-2xl mx-auto">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          {esEdicion ? "✏️ Editar Médico" : "➕ Nuevo Médico"}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre <span className="text-red-500">*</span></label>
+              <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Apellido <span className="text-red-500">*</span></label>
+              <input type="text" name="apellido" value={formData.apellido} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+            </div>
           </div>
-        ))}
-
-        <div className="flex justify-end gap-3 pt-4">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-gray-400 text-white rounded"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            Guardar
-          </button>
-        </div>
-      </form>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Especialidad <span className="text-red-500">*</span></label>
+            <input type="text" name="especialidad" value={formData.especialidad} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Email <span className="text-red-500">*</span></label>
+            <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
+            <input type="text" name="telefono" value={formData.telefono} onChange={handleChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div className="flex gap-3 justify-end pt-4">
+            <button type="button" onClick={() => navigate("/medicos")} className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50" disabled={loading}>Cancelar</button>
+            <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400">
+              {loading ? "Guardando..." : esEdicion ? "💾 Actualizar" : "✅ Crear Médico"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
