@@ -10,6 +10,7 @@ export default function MedicoForm() {
   const esEdicion = !!id;
 
   const [formData, setFormData] = useState({
+    cedula: "",
     nombre: "",
     apellido: "",
     especialidad: "",
@@ -58,6 +59,10 @@ export default function MedicoForm() {
           {esEdicion ? "✏️ Editar Médico" : "➕ Nuevo Médico"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Cédula <span className="text-red-500">*</span></label>
+            <input type="text" name="cedula" value={formData.cedula} onChange={handleChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre <span className="text-red-500">*</span></label>
