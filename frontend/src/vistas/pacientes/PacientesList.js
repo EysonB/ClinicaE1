@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import API_BASE from "../../config";
 
 function PacientesList() {
   const [pacientes, setPacientes] = useState([]);
@@ -14,7 +15,7 @@ function PacientesList() {
 
   const obtenerPacientes = () => {
     setLoading(true);
-    axios.get("http://127.0.0.1:8000/api/pacientes/")
+    axios.get(`${API_BASE}/pacientes/`)
       .then((response) => {
         setPacientes(response.data);
       })
@@ -32,7 +33,7 @@ function PacientesList() {
       return;
     }
 
-    axios.delete(`http://127.0.0.1:8000/api/pacientes/${id}/`)
+    axios.delete(`${API_BASE}/pacientes/${id}/`)
       .then(() => {
         toast.success("Paciente eliminado correctamente");
         setPacientes(pacientes.filter(p => p.id !== id));
