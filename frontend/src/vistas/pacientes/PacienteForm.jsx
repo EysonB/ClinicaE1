@@ -3,7 +3,9 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const BASE_URL = "http://127.0.0.1:8000/api/pacientes/";
+
+import API_BASE from "../../config";
+const BASE_URL = `${API_BASE}/pacientes/`;
 
 export default function PacienteForm() {
   const navigate = useNavigate();
