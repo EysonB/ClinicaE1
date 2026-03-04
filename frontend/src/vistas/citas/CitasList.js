@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const BASE = "http://127.0.0.1:8000/api";
+
+import API_BASE from "../../config";
+const BASE = API_BASE;
 
 export default function CitasList() {
   const [citas, setCitas] = useState([]);
