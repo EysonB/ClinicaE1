@@ -99,15 +99,15 @@ export default function Login() {
           <div className="space-y-2">
             <div>
               <p className="font-medium">👑 Superadmin:</p>
-              <p className="text-xs ml-4">hola tio / joder</p>
+              <p className="text-xs ml-4">no</p>
             </div>
             <div>
-              <p className="font-medium">👩‍⚕️ Enfermera:</p>
-              <p className="text-xs ml-4">enfermera@clinica.com / enfermera123</p>
+              <p className="font-medium">👩‍⚕️ Enfermera (administrador):</p>
+              <p className="text-xs ml-4">rigo@clinica.com / 12345</p>
             </div>
             <div>
               <p className="font-medium">👨‍⚕️ Médico:</p>
-              <p className="text-xs ml-4">medico@clinica.com / medico123</p>
+              <p className="text-xs ml-4">elian@clinica.com / 12345</p>
             </div>
           </div>
         </div>
